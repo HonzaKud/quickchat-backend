@@ -1,0 +1,11 @@
+# Node modules
+node_modules/
+
+# Build výstup
+dist/
+
+# Environmentální proměnné
+.env
+
+# Logy a další zbytečnosti
+*.log

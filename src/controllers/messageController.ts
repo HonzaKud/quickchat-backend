@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
 import Message from '../models/Message';
-import { IMessage } from '../models/Message';
 
+// Typ rozšířeného requestu s uživatelem
 interface AuthRequest extends Request {
-  user?: any; // můžeš později nahradit IUser
+  user?: any;
 }
 
 // ✅ Odeslání zprávy
-export const sendMessage = async (req: AuthRequest, res: Response) => {
+export const sendMessage = async (req: AuthRequest, res: Response): Promise<void> => {
   const { recipientId, content } = req.body;
 
-  // Kontrola vstupních dat
   if (!recipientId || !content) {
-    return res.status(400).json({ message: 'Chybí příjemce nebo obsah zprávy.' });
+    res.status(400).json({ message: 'Chybí příjemce nebo obsah zprávy.' });
+    return;
   }
 
   try {
@@ -30,8 +30,8 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// ✅ Získání všech zpráv pro přihlášeného uživatele
-export const getMessages = async (req: AuthRequest, res: Response) => {
+// ✅ Získání zpráv
+export const getMessages = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const messages = await Message.find({
       $or: [{ sender: req.user._id }, { recipient: req.user._id }],

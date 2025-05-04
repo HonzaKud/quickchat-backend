@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import Message from '../models/Message';
+import { io } from '../index'; // 👈 Importujeme instanci io
 
-// Typ rozšířeného requestu s uživatelem
+// Rozšířený request s uživatelem (z middleware)
 interface AuthRequest extends Request {
   user?: any;
 }
@@ -23,7 +24,12 @@ export const sendMessage = async (req: AuthRequest, res: Response): Promise<void
     });
 
     const saved = await message.save();
-    res.status(201).json(saved);
+    const populated = await saved.populate(['sender', 'recipient']);
+
+    // ✅ Emitujeme zprávu přes WebSocket všem připojeným klientům
+    io.emit('newMessage', populated);
+
+    res.status(201).json(populated);
   } catch (error) {
     console.error('❌ Chyba při ukládání zprávy:', error);
     res.status(500).json({ message: 'Chyba při odesílání zprávy.' });
